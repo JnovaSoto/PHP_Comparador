@@ -1,141 +1,161 @@
 <?php
-session_start();
 if (!isset($_SESSION["Administrador"]) && !isset($_SESSION["Cliente"])) {
-    header("location:registrarse.php");
+    header("location: index.php?accion=registrarse");
+    exit();
 }
-require_once "../modelo/tipoAlimentoModelo.php";
-require_once "../controlador/tipoAlimentoControlador.php";
-require_once "../modelo/alimentosModelo.php";
-require_once "../controlador/alimentosControlador.php";
-require_once "../modelo/comparacionModelo.php";
-require_once "../controlador/comparacionControlador.php";
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>¡A comparar!</title>
-    <link rel="stylesheet" href="estilosInicio.css">
-    <script src="scriptsElegirAlimento.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparar Alimentos - NutriCompare</title>
+    <link rel="stylesheet" href="assets/css/global.css">
+    <script src="assets/js/scriptsElegirAlimento.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 </head>
-<body class="body1">
-<?php
 
-include("header.php");
+<body class="dashboard-page">
+    <?php include("header.php"); ?>
 
-?>
-<main>
-    <form class="formTipo" action="#" method="post" id="formTipos">
-        <select name="elegirTipo1" id="elegirTipo1">
-            <option value="0" selected>Elige tipo</option>
-        </select>
-        <select name="elegirTipo2" id="elegirTipo2">
-            <option value="0" selected>Elige tipo</option>
-        </select>
-        <button id="botonTipo" type="submit">Elegir</button>
-    </form>
-    <form method="post" action="#" class="formAlimento1" id="formAlimentos">
-        <div class="gridElementos">
-            <div class="comida1">
-                <select name="elegirAlimento1" id="elegirAlimento1">
-                    <option>Elige alimento</option>
-                </select>
-                <div class="alimento1">
-                    <img src="" id="imagenComida1" alt="">
-                    <div class="tituloComida"><h1 id="tituloComida1"></h1></div>
-                    <div class="statsComida1">
-                        <div>Hidratos tot.</div>
-                        <div>Azúcares</div>
-                        <div>Grasas tot.</div>
-                        <div>Grasas sat.</div>
-                        <div>Proteínas</div>
-                        <div>Valor energ.</div>
+    <main class="container py-5">
+        <div class="page-title text-center mb-5">
+            <h1 class="gradient-text">Comparador de Alimentos</h1>
+            <p class="text-muted">Selecciona las categorías y alimentos para ver su desglose nutricional.</p>
+        </div>
 
-                        <div id="hidratosTot1">...</div>
-                        <div id="azucares1">...</div>
-                        <div id="grasasTot1">...</div>
-                        <div id="grasasSat1">...</div>
-                        <div id="proteinas1">...</div>
-                        <div id="vEnergetico1">...</div>
-                    </div>
+        <!-- Selection Controls -->
+        <div class="selection-dashboard glass-card mb-5 p-4">
+            <div class="selection-grid">
+                <div class="form-group">
+                    <label for="elegirTipo1">Categoría del Alimento 1</label>
+                    <select name="elegirTipo1" id="elegirTipo1" class="input-field">
+                        <option value="0" selected>Elige una categoría</option>
+                    </select>
                 </div>
-            </div>
-            <div class="comida1">
-                <select name="elegirAlimento2" id="elegirAlimento2">
-                    <option>Elige alimento</option>
-                </select>
-                <div class="alimento2">
-                    <img src="" alt="" id="imagenComida2">
-                    <div class="tituloComida"><h1 id="tituloComida2"></h1></div>
-                    <div class="statsComida1">
-                        <div>Hidratos tot.</div>
-                        <div>Azúcares</div>
-                        <div>Grasas tot.</div>
-                        <div>Grasas sat.</div>
-                        <div>Proteínas</div>
-                        <div>Valor energ.</div>
-                        <div id="hidratosTot2">...</div>
-                        <div id="azucares2">...</div>
-                        <div id="grasasTot2">...</div>
-                        <div id="grasasSat2">...</div>
-                        <div id="proteinas2">...</div>
-                        <div id="vEnergetico2">...</div>
-                    </div>
+                <div class="form-group">
+                    <label for="elegirTipo2">Categoría del Alimento 2</label>
+                    <select name="elegirTipo2" id="elegirTipo2" class="input-field">
+                        <option value="0" selected>Elige una categoría</option>
+                    </select>
                 </div>
             </div>
         </div>
-        <div class="divBotonComparar">
-            <button type="submit" id="botonComparar">¡COMPARAR!</button>
-        </div>
-    </form>
-    <div class="Estadisticas">
-        <div class="Canvas1">
-            <div class="titGraf"><h1>Hidratos Totales</h1></div>
-            <div class="titGraf"><h1>Azúcares Totales</h1></div>
-            <div class="titGraf"><h1>Grasas Totales</h1></div>
-            <div>
-                <canvas id="myChart"></canvas>
-            </div>
-            <div>
-                <canvas id="myChart1"></canvas>
-            </div>
-            <div>
-                <canvas id="myChart2"></canvas>
-            </div>
-            <div class="titGraf"><h1>Grasas Saturadas</h1></div>
-            <div class="titGraf"><h1>Proteínas Totales</h1></div>
-            <div class="titGraf"><h1>Valor Energetico</h1></div>
-            <div>
-                <canvas id="myChart3"></canvas>
-            </div>
-            <div>
-                <canvas id="myChart4"></canvas>
-            </div>
-            <div>
-                <canvas id="myChart5"></canvas>
-            </div>
-        </div>
-        <div class="TitCan">
-            <h1>Composición Total</h1>
-        </div>
-        <div class="Canvas2">
-            <div>
-                <h1>Primera comida:</h1>
-                <canvas id="myChart6"></canvas>
-            </div>
-            <div>
-                <h1>Segunda comida:</h1>
-                <canvas id="myChart7"></canvas>
-            </div>
-        </div>
-    </div>
-    <br>
-</main>
-<?php
 
-include("footer.php")
+        <!-- Comparison Cards -->
+        <form method="post" action="#" id="formAlimentos">
+            <div class="comparison-grid mb-5">
+                <!-- Food Item 1 -->
+                <div class="food-card-wrapper">
+                    <div class="form-group mb-3">
+                        <label for="elegirAlimento1">Seleccionar Alimento 1</label>
+                        <select name="elegirAlimento1" id="elegirAlimento1" class="input-field">
+                            <option>Elige alimento</option>
+                        </select>
+                    </div>
+                    <div class="alimento1 glass-card p-4 animate-fade">
+                        <div class="food-img-container mb-3">
+                            <img src="" id="imagenComida1" alt="" class="img-fluid rounded">
+                        </div>
+                        <h2 id="tituloComida1" class="food-title mb-4"></h2>
+                        <div class="nutrition-grid">
+                            <div class="stat-item"><span>Hidratos</span><strong id="hidratosTot1">...</strong></div>
+                            <div class="stat-item"><span>Azúcares</span><strong id="azucares1">...</strong></div>
+                            <div class="stat-item"><span>Grasas</span><strong id="grasasTot1">...</strong></div>
+                            <div class="stat-item"><span>Saturadas</span><strong id="grasasSat1">...</strong></div>
+                            <div class="stat-item"><span>Proteínas</span><strong id="proteinas1">...</strong></div>
+                            <div class="stat-item highlight"><span>Calorías</span><strong id="vEnergetico1">...</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-?>
+                <!-- Food Item 2 -->
+                <div class="food-card-wrapper">
+                    <div class="form-group mb-3">
+                        <label for="elegirAlimento2">Seleccionar Alimento 2</label>
+                        <select name="elegirAlimento2" id="elegirAlimento2" class="input-field">
+                            <option>Elige alimento</option>
+                        </select>
+                    </div>
+                    <div class="alimento2 glass-card p-4 animate-fade">
+                        <div class="food-img-container mb-3">
+                            <img src="" id="imagenComida2" alt="" class="img-fluid rounded">
+                        </div>
+                        <h2 id="tituloComida2" class="food-title mb-4"></h2>
+                        <div class="nutrition-grid">
+                            <div class="stat-item"><span>Hidratos</span><strong id="hidratosTot2">...</strong></div>
+                            <div class="stat-item"><span>Azúcares</span><strong id="azucares2">...</strong></div>
+                            <div class="stat-item"><span>Grasas</span><strong id="grasasTot2">...</strong></div>
+                            <div class="stat-item"><span>Saturadas</span><strong id="grasasSat2">...</strong></div>
+                            <div class="stat-item"><span>Proteínas</span><strong id="proteinas2">...</strong></div>
+                            <div class="stat-item highlight"><span>Calorías</span><strong id="vEnergetico2">...</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mb-5">
+                <button type="submit" id="botonComparar" class="btn-primary btn-lg px-5">
+                    <i class="fas fa-balance-scale"></i> GENERAR COMPARATIVA
+                </button>
+            </div>
+        </form>
+
+        <!-- Dynamic Statistics -->
+        <div class="Estadisticas animate-fade">
+            <div class="section-title mb-4">
+                <i class="fas fa-chart-line"></i> Análisis por Componente
+            </div>
+            <div class="charts-grid mb-5">
+                <div class="chart-box glass-card p-3">
+                    <h3>Hidratos</h3>
+                    <canvas id="myChart"></canvas>
+                </div>
+                <div class="chart-box glass-card p-3">
+                    <h3>Azúcares</h3>
+                    <canvas id="myChart1"></canvas>
+                </div>
+                <div class="chart-box glass-card p-3">
+                    <h3>Grasas</h3>
+                    <canvas id="myChart2"></canvas>
+                </div>
+                <div class="chart-box glass-card p-3">
+                    <h3>Saturadas</h3>
+                    <canvas id="myChart3"></canvas>
+                </div>
+                <div class="chart-box glass-card p-3">
+                    <h3>Proteínas</h3>
+                    <canvas id="myChart4"></canvas>
+                </div>
+                <div class="chart-box glass-card p-3">
+                    <h3>Valor Energético</h3>
+                    <canvas id="myChart5"></canvas>
+                </div>
+            </div>
+
+            <div class="section-title mb-4">
+                <i class="fas fa-percentage"></i> Composición Relativa
+            </div>
+            <div class="pie-charts-grid">
+                <div class="chart-box glass-card p-4 text-center">
+                    <h3>Primer Alimento</h3>
+                    <canvas id="myChart6" class="mx-auto"></canvas>
+                </div>
+                <div class="chart-box glass-card p-4 text-center">
+                    <h3>Segundo Alimento</h3>
+                    <canvas id="myChart7" class="mx-auto"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <?php include("footer.php"); ?>
+
+
 </body>
+
 </html>

@@ -7,8 +7,11 @@ class UsuarioControlador
         //Si el parámetro del email del formulario de registro viene con información
         if (isset($_POST["email"])) {
             //Crearemos una array con el contenido del formulario
-            $datosControlador = array("email" => $_POST["email"], "nombre" => $_POST["nombre"],
-                "contra1" => $_POST["contra1"]);
+            $datosControlador = array(
+                "email" => $_POST["email"],
+                "nombre" => $_POST["nombre"],
+                "contra1" => $_POST["contra1"]
+            );
             //Creamos una variable con el nombre de la tabla a la que le queremos insertar
             $tablaBD = "usuario";
 
@@ -18,7 +21,7 @@ class UsuarioControlador
             //Como va a devolver una cadena, analizamos cual es y en consecuencia
             if ($respuesta == "Registro realizado correctamente") {
                 //Si el registro se hizo bien, volvemos a la página de registrar
-                header("location:crudUsuarios.php?accion=listarUsuario");
+                header("location:index.php?accion=listarUsuario");
             } else {
                 //Sino, mostramos un error
                 echo "Hubo un error en el proceso del registro";
@@ -31,8 +34,11 @@ class UsuarioControlador
         //Si el parámetro del email del formulario de registro viene con información
         if (isset($_POST["email"])) {
             //Crearemos una array con el contenido del formulario
-            $datosControlador = array("email" => $_POST["email"], "nombre" => $_POST["nombre"],
-                "contra1" => $_POST["contra1"]);
+            $datosControlador = array(
+                "email" => $_POST["email"],
+                "nombre" => $_POST["nombre"],
+                "contra1" => $_POST["contra1"]
+            );
             //Creamos una variable con el nombre de la tabla a la que le queremos insertar
             $tablaBD = "usuario";
 
@@ -42,7 +48,7 @@ class UsuarioControlador
             //Como va a devolver una cadena, analizamos cual es y en consecuencia
             if ($respuesta == "Registro realizado correctamente") {
                 //Si el registro se hizo bien, volvemos a la página de registrar
-                header("location:loginUsuario.php");
+                header("location:index.php?accion=loginUsuario");
             } else {
                 //Sino, mostramos un error
                 echo "Hubo un error en el proceso del registro";
@@ -103,8 +109,13 @@ class UsuarioControlador
         //Si el parámetro nombre viene con información
         if (isset($_POST["email"])) {
             //Hacemos una array con los datos del formulario
-            $datosControlador = array("idUsuario" => $_POST["idUsuario"], "email" => $_POST["email"],
-                "nombre" => $_POST["nombre"], "contra1" => $_POST["contra1"], "esAdmin" => $_POST["esAdmin"]);
+            $datosControlador = array(
+                "idUsuario" => $_POST["idUsuario"],
+                "email" => $_POST["email"],
+                "nombre" => $_POST["nombre"],
+                "contra1" => $_POST["contra1"],
+                "esAdmin" => $_POST["esAdmin"]
+            );
             //Elegimos una tabla
             $tablaBD = "usuario";
 
@@ -113,7 +124,7 @@ class UsuarioControlador
 
             //Si la actualización fue correcta redirigimos a la página de listado
             if ($respuesta == "Actualización realizada correctamente") {
-                header("location:crudUsuarios.php?accion=listarUsuario");
+                header("location:index.php?accion=listarUsuario");
             } else {
                 echo "Hubo un error en el proceso del actualización";
             }
@@ -135,7 +146,7 @@ class UsuarioControlador
 
             //Dependiendo de la cadena hacemos una cosa u otra
             if ($respuesta == "Eliminación realizada correctamente") {
-                header("location:crudUsuarios.php?accion=listarUsuario");
+                header("location:index.php?accion=listarUsuario");
             } else {
                 echo "Hubo un error en el proceso del eliminación";
             }

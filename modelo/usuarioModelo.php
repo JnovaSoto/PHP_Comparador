@@ -1,5 +1,5 @@
 <?php
-require_once "conexionBD.php";
+require_once __DIR__ . "/../config/conexionBD.php";
 
 class UsuarioModelo extends ConexionBD
 {

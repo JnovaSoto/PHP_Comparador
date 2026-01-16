@@ -1,0 +1,36 @@
+services:
+  app:
+    image: php:8.2-apache
+    container_name: php_comparador_app
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    restart: always
+    # Enable PDO MySQL extension
+    entrypoint: [ "sh", "-c", "docker-php-ext-install pdo pdo_mysql && apache2-foreground" ]
+
+  db:
+    image: mariadb:10.11
+    container_name: php_comparador_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: phpComparador
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./config/schema.sql:/docker-entrypoint-initdb.d/setup.sql
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: php_comparador_pma
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+    depends_on:
+      - db
+
+volumes:
+  db_data:

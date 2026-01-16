@@ -1,3 +1,10 @@
+function fixImageUrl(url) {
+    if (url && url.startsWith('../img/')) {
+        return url.replace('../img/', 'assets/img/');
+    }
+    return url;
+}
+
 window.onload = function () {
     let chart0 = null;
     let chart1 = null;
@@ -50,13 +57,13 @@ window.onload = function () {
                     } else if (data[x].idTipo == 12) {
                         tablaAlimentos += '<div>🥘🥙🍞</div>';
                     }
-                    tablaAlimentos += "<div><a class='botonEditar' href='crudUsuarios.php?accion=editarAlimentos&idAlimento=" + data[x].idAlimento + "'>Editar</a></div>" +
-                        "<div><a class='botonEliminar' href='crudUsuarios?accion=listarAlimento&idAlimento=" + data[x].idAlimento + "'>Eliminar</a></div>";
+                    tablaAlimentos += "<div><a class='botonEditar' href='index.php?accion=editarAlimentos&idAlimento=" + data[x].idAlimento + "'>Editar</a></div>" +
+                        "<div><a class='botonEliminar' href='index.php?accion=listarAlimento&idAlimento=" + data[x].idAlimento + "'>Eliminar</a></div>";
                 }
                 document.getElementsByClassName("gridAlimentos")[0].innerHTML += tablaAlimentos;
             });
 
-    } else if (window.location.href.includes("elegirAlimento.php") || accion == "registrarAlimento" || accion == "editarAlimento") {
+    } else if (accion == "elegirAlimento" || accion == "registrarAlimento" || accion == "editarAlimentos") {
         fetch("jsons.php?modo=todosTipos")
             .then(respuesta => respuesta.json())
             .then(datos => {
@@ -72,93 +79,126 @@ window.onload = function () {
                     document.getElementById("elegirTipo2").innerHTML += selectTipo;
                 }
             })
-        if (window.location.href.includes("elegirAlimento.php")) {
-            document.getElementsByClassName("Estadisticas")[0].style.display = "none";
-            document.getElementsByClassName("TitCan")[0].style.display = "none";
-            document.getElementsByClassName("alimento1")[0].style.display = 'none';
-            document.getElementsByClassName("alimento2")[0].style.display = 'none';
-            //document.getElementsByClassName("Estadisticas")[0].style.display = 'none';
-            console.log("Estas en elegirAlimento")
-            let formTipos = document.getElementById("formTipos");
-            formTipos.addEventListener("submit", function (evento) {
-                document.getElementsByClassName("Estadisticas")[0].style.display = "none";
-                document.getElementsByClassName("TitCan")[0].style.display = "none";
-                evento.preventDefault();
-                let formData = new FormData(evento.target);
-                fetch("jsons.php?modo=alimento1PorTipo&modo2=alimento2PorTipo", {method: "POST", body: formData})
+        if (accion == "elegirAlimento") {
+            const stats = document.getElementsByClassName("Estadisticas")[0];
+            if (stats) stats.style.display = "none";
+
+            const a1 = document.getElementsByClassName("alimento1")[0];
+            if (a1) a1.style.display = 'none';
+
+            const a2 = document.getElementsByClassName("alimento2")[0];
+            if (a2) a2.style.display = 'none';
+
+            console.log("Estas en elegirAlimento");
+
+            let arrayTipo1 = [];
+            let arrayTipo2 = [];
+
+            // Event listener for first food type
+            document.getElementById("elegirTipo1").addEventListener("change", function () {
+                let idTipo = this.value;
+                if (idTipo == 0) return;
+
+                fetch(`jsons.php?modo=alimentoPorTipo&idTipo=${idTipo}`)
                     .then(respuesta => respuesta.json())
                     .then(datos => {
-                        let tipo1 = datos[0].idTipo;
-                        let arrayTipo1 = [];
-                        let arrayTipo2 = [];
-                        for (let x = 0; x < datos.length; x++) {
-                            if (datos[x].idTipo == tipo1) {
-                                arrayTipo1.push(datos[x]);
-                            } else {
-                                arrayTipo2.push(datos[x]);
-                            }
-                        }
+                        arrayTipo1 = datos;
                         let selectAlimentos = '<option value="0">Elegir alimento</option>';
                         for (let x = 0; x < arrayTipo1.length; x++) {
                             selectAlimentos += '<option>' + arrayTipo1[x].nombre + '</option>'
                         }
                         document.getElementById("elegirAlimento1").innerHTML = selectAlimentos;
-                        document.getElementById("elegirAlimento1").addEventListener("change", function () {
-                            let valorSelect1 = 0;
-                            for (let x = 0; x < arrayTipo1.length; x++) {
-                                if (arrayTipo1[x].nombre == document.getElementById("elegirAlimento1").value) {
-                                    valorSelect1 = x;
-                                }
-                            }
-                            document.getElementsByClassName("alimento1")[0].style.display = 'block';
-                            document.getElementById("imagenComida1").src = arrayTipo1[valorSelect1].urlFoto;
-                            document.getElementById("tituloComida1").innerHTML = arrayTipo1[valorSelect1].nombre;
-                            document.getElementById("hidratosTot1").innerHTML = arrayTipo1[valorSelect1].hidratosTotales + 'g';
-                            document.getElementById("azucares1").innerHTML = arrayTipo1[valorSelect1].azucares + 'g';
-                            document.getElementById("grasasTot1").innerHTML = arrayTipo1[valorSelect1].grasasTotales + 'g';
-                            document.getElementById("grasasSat1").innerHTML = arrayTipo1[valorSelect1].grasasSaturadas + 'g';
-                            document.getElementById("proteinas1").innerHTML = arrayTipo1[valorSelect1].proteinas + 'g';
-                            document.getElementById("vEnergetico1").innerHTML = arrayTipo1[valorSelect1].valorEnergetico + '     kcal';
-                        })
-
-
                         document.getElementsByClassName("alimento1")[0].style.display = 'none';
-                        document.getElementsByClassName("alimento2")[0].style.display = 'none';
+                    });
+            });
 
-                        let selectAlimentos2 = '<option value="0">Elegir alimento</option>';
+            // Event listener for first food selection
+            document.getElementById("elegirAlimento1").addEventListener("change", function () {
+                let nombre = this.value;
+                let food = arrayTipo1.find(a => a.nombre === nombre);
+                if (!food) return;
+
+                document.getElementsByClassName("alimento1")[0].style.display = 'block';
+                document.getElementById("imagenComida1").src = fixImageUrl(food.urlFoto);
+                document.getElementById("tituloComida1").innerHTML = food.nombre;
+                document.getElementById("hidratosTot1").innerHTML = food.hidratosTotales + 'g';
+                document.getElementById("azucares1").innerHTML = food.azucares + 'g';
+                document.getElementById("grasasTot1").innerHTML = food.grasasTotales + 'g';
+                document.getElementById("grasasSat1").innerHTML = food.grasasSaturadas + 'g';
+                document.getElementById("proteinas1").innerHTML = food.proteinas + 'g';
+                document.getElementById("vEnergetico1").innerHTML = food.valorEnergetico + ' kcal';
+            });
+
+            // Event listener for second food type
+            document.getElementById("elegirTipo2").addEventListener("change", function () {
+                let idTipo = this.value;
+                if (idTipo == 0) return;
+
+                fetch(`jsons.php?modo=alimentoPorTipo&idTipo=${idTipo}`)
+                    .then(respuesta => respuesta.json())
+                    .then(datos => {
+                        arrayTipo2 = datos;
+                        let selectAlimentos = '<option value="0">Elegir alimento</option>';
                         for (let x = 0; x < arrayTipo2.length; x++) {
-                            selectAlimentos2 += '<option>' + arrayTipo2[x].nombre + '</option>'
+                            selectAlimentos += '<option>' + arrayTipo2[x].nombre + '</option>'
                         }
+                        document.getElementById("elegirAlimento2").innerHTML = selectAlimentos;
+                        document.getElementsByClassName("alimento2")[0].style.display = 'none';
+                    });
+            });
 
-                        document.getElementById("elegirAlimento2").innerHTML = selectAlimentos2;
-                        document.getElementById("elegirAlimento2").addEventListener("change", function () {
-                            let valorSelect2 = 0;
-                            for (let x = 0; x < arrayTipo2.length; x++) {
-                                if (arrayTipo2[x].nombre == document.getElementById("elegirAlimento2").value) {
-                                    valorSelect2 = x;
-                                }
-                            }
-                            document.getElementsByClassName("alimento2")[0].style.display = 'block';
-                            document.getElementById("imagenComida2").src = arrayTipo2[valorSelect2].urlFoto;
-                            document.getElementById("tituloComida2").innerHTML = arrayTipo2[valorSelect2].nombre;
-                            document.getElementById("hidratosTot2").innerHTML = arrayTipo2[valorSelect2].hidratosTotales + 'g';
-                            document.getElementById("azucares2").innerHTML = arrayTipo2[valorSelect2].azucares + 'g';
-                            document.getElementById("grasasTot2").innerHTML = arrayTipo2[valorSelect2].grasasTotales + 'g';
-                            document.getElementById("grasasSat2").innerHTML = arrayTipo2[valorSelect2].grasasSaturadas + 'g';
-                            document.getElementById("proteinas2").innerHTML = arrayTipo2[valorSelect2].proteinas + 'g';
-                            document.getElementById("vEnergetico2").innerHTML = arrayTipo2[valorSelect2].valorEnergetico + ' kcal';
-                        })
-                    })
-            })
+            // Event listener for second food selection
+            document.getElementById("elegirAlimento2").addEventListener("change", function () {
+                let nombre = this.value;
+                let food = arrayTipo2.find(a => a.nombre === nombre);
+                if (!food) return;
+
+                document.getElementsByClassName("alimento2")[0].style.display = 'block';
+                document.getElementById("imagenComida2").src = fixImageUrl(food.urlFoto);
+                document.getElementById("tituloComida2").innerHTML = food.nombre;
+                document.getElementById("hidratosTot2").innerHTML = food.hidratosTotales + 'g';
+                document.getElementById("azucares2").innerHTML = food.azucares + 'g';
+                document.getElementById("grasasTot2").innerHTML = food.grasasTotales + 'g';
+                document.getElementById("grasasSat2").innerHTML = food.grasasSaturadas + 'g';
+                document.getElementById("proteinas2").innerHTML = food.proteinas + 'g';
+                document.getElementById("vEnergetico2").innerHTML = food.valorEnergetico + ' kcal';
+            });
         }
 
         let formGrafica = document.getElementById("formAlimentos");
         formGrafica.addEventListener("submit", function (evento) {
-            document.getElementsByClassName("TitCan")[0].style.display = "block"
             evento.preventDefault();
-            document.getElementsByClassName("Estadisticas")[0].style.display = 'grid';
+
+            // Validation: Check if both foods are selected
+            const alimento1 = document.getElementById("elegirAlimento1").value;
+            const alimento2 = document.getElementById("elegirAlimento2").value;
+            const botonComparar = document.getElementById("botonComparar");
+
+            if (!alimento1 || alimento1 === "Elige alimento" || alimento1 === "0") {
+                alert("⚠️ Por favor, selecciona el primer alimento");
+                return;
+            }
+
+            if (!alimento2 || alimento2 === "Elige alimento" || alimento2 === "0") {
+                alert("⚠️ Por favor, selecciona el segundo alimento");
+                return;
+            }
+
+            // Visual feedback - disable button and show loading state
+            botonComparar.disabled = true;
+            botonComparar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GENERANDO...';
+
+            // Show statistics section with smooth scroll
+            const statsSection = document.getElementsByClassName("Estadisticas")[0];
+            statsSection.style.display = 'grid';
+
+            // Smooth scroll to results
+            setTimeout(() => {
+                statsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+
             let formData1 = new FormData(evento.target);
-            fetch('jsons.php?modo=comparacion&modo2=comparaciones', {method: "POST", body: formData1})
+            fetch('jsons.php?modo=comparacion&modo2=comparaciones', { method: "POST", body: formData1 })
                 .then(respuesta => respuesta.json())
                 .then(data => {
                     console.log(data);
@@ -226,7 +266,7 @@ window.onload = function () {
                             }],
                             labels: [document.getElementById("tituloComida1").innerHTML, document.getElementById("tituloComida2").innerHTML]
                         },
-                        options: {responsive: true}
+                        options: { responsive: true }
                     });
                     var ctx1 = document.getElementById('myChart1');
                     if (chart1) {
@@ -242,7 +282,7 @@ window.onload = function () {
                             }],
                             labels: [document.getElementById("tituloComida1").innerHTML, document.getElementById("tituloComida2").innerHTML]
                         },
-                        options: {responsive: true}
+                        options: { responsive: true }
                     });
                     let ctx2 = document.getElementById('myChart2');
                     if (chart2) {
@@ -258,7 +298,7 @@ window.onload = function () {
                             }],
                             labels: [document.getElementById("tituloComida1").innerHTML, document.getElementById("tituloComida2").innerHTML]
                         },
-                        options: {responsive: true}
+                        options: { responsive: true }
                     });
                     let ctx3 = document.getElementById('myChart3');
                     if (chart3) {
@@ -274,7 +314,7 @@ window.onload = function () {
                             }],
                             labels: [document.getElementById("tituloComida1").innerHTML, document.getElementById("tituloComida2").innerHTML]
                         },
-                        options: {responsive: true}
+                        options: { responsive: true }
                     });
                     let ctx4 = document.getElementById('myChart4');
                     if (chart4) {
@@ -290,7 +330,7 @@ window.onload = function () {
                             }],
                             labels: [document.getElementById("tituloComida1").innerHTML, document.getElementById("tituloComida2").innerHTML]
                         },
-                        options: {responsive: true}
+                        options: { responsive: true }
                     });
                     let ctx5 = document.getElementById('myChart5');
                     if (chart5) {
@@ -306,7 +346,7 @@ window.onload = function () {
                             }],
                             labels: [document.getElementById("tituloComida1").innerHTML, document.getElementById("tituloComida2").innerHTML]
                         },
-                        options: {responsive: true}
+                        options: { responsive: true }
                     });
                     let ctx6 = document.getElementById('myChart6');
                     if (chart6) {
@@ -328,7 +368,7 @@ window.onload = function () {
                             }],
                             labels: ['Fibras', 'Azúcares', 'Grasas No Saturadas', 'Grasas Saturadas', 'Proteinas']
                         },
-                        options: {responsive: true}
+                        options: { responsive: true }
                     });
                     let ctx7 = document.getElementById('myChart7');
                     if (chart7) {
@@ -350,9 +390,18 @@ window.onload = function () {
                             }],
                             labels: ['Fibras', 'Azúcares', 'Grasas No Saturadas', 'Grasas Saturadas', 'Proteinas']
                         },
-                        options: {responsive: true}
+                        options: { responsive: true }
                     });
 
+                    // Re-enable button after charts are generated
+                    botonComparar.disabled = false;
+                    botonComparar.innerHTML = '<i class="fas fa-balance-scale"></i> GENERAR COMPARATIVA';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Error al generar la comparativa. Por favor, intenta de nuevo.');
+                    botonComparar.disabled = false;
+                    botonComparar.innerHTML = '<i class="fas fa-balance-scale"></i> GENERAR COMPARATIVA';
                 })
 
         })

@@ -9,13 +9,21 @@ class AlimentosControlador
         if (isset($_POST["nombre"])) {
             $archivo_temporal = $_FILES['urlFoto']['tmp_name'];
             $archivo_nombre = $_FILES['urlFoto']['name'];
-            $carpeta_destino = '../img/';
+            $carpeta_destino = 'assets/img/';
             $archivo_destino = $carpeta_destino . $archivo_nombre;
             echo $archivo_destino;
             move_uploaded_file($archivo_temporal, $archivo_destino);
-            $datosControlador = array("nombre" => $_POST["nombre"], "hidratos" => $_POST["hidratos"], "azucares" => $_POST["azucares"],
-                "grasasT" => $_POST["grasasT"], "grasasS" => $_POST["grasasS"], "proteinas" => $_POST["proteinas"],
-                "energetico" => $_POST["energetico"], "urlFoto" => $archivo_destino, "tipo" => $_POST["tipoAlimento"]);
+            $datosControlador = array(
+                "nombre" => $_POST["nombre"],
+                "hidratos" => $_POST["hidratos"],
+                "azucares" => $_POST["azucares"],
+                "grasasT" => $_POST["grasasT"],
+                "grasasS" => $_POST["grasasS"],
+                "proteinas" => $_POST["proteinas"],
+                "energetico" => $_POST["energetico"],
+                "urlFoto" => $archivo_destino,
+                "tipo" => $_POST["tipoAlimento"]
+            );
 
 
             $tablaBD = "alimentos";
@@ -25,7 +33,7 @@ class AlimentosControlador
             //Como va a devolver una cadena, analizamos cual es y en consecuencia
             if ($respuesta == "Registro realizado correctamente") {
                 //Si el registro se hizo bien, volvemos a la página de registrar
-                header("location:crudUsuarios.php?accion=listarAlimento");
+                header("location:index.php?accion=listarAlimento");
             } else {
                 //Sino, mostramos un error
                 echo "Hubo un error en el proceso del registro";
@@ -50,27 +58,30 @@ class AlimentosControlador
     public function listarAlimentoPorTipoControlador1()
     {
         //Eligimos tabla
+        if (!isset($_POST["elegirTipo1"]))
+            return json_encode([]);
         $idTipo1 = $_POST["elegirTipo1"];
         $tablaBD = "alimentos";
-        //llamamos a la función de listar todos
         $respuesta = AlimentosModelo::listarAlimentoPorTipoModelo1($tablaBD, $idTipo1);
-
-        //Con la que devuelva esta función, haremos con un foreach toda
-        //la maquetación de la página por cada registro que devuelva la función
         return json_encode($respuesta);
     }
 
     public function listarAlimentoPorTipoControlador2()
     {
         //Eligimos tabla
+        if (!isset($_POST["elegirTipo2"]))
+            return json_encode([]);
         $idTipo2 = $_POST["elegirTipo2"];
         $tablaBD = "alimentos";
-        //llamamos a la función de listar todos
         $respuesta = AlimentosModelo::listarAlimentoPorTipoModelo2($tablaBD, $idTipo2);
-
-        //Con la que devuelva esta función, haremos con un foreach toda
-        //la maquetación de la página por cada registro que devuelva la función
         return json_encode($respuesta);
+    }
+
+    public function listarAlimentoPorTipo($idTipo)
+    {
+        $tablaBD = "alimentos";
+        $respuesta = AlimentosModelo::listarAlimentoPorTipoModelo1($tablaBD, $idTipo);
+        echo json_encode($respuesta);
     }
 
     public function editarAlimentoControlador()
@@ -319,9 +330,17 @@ class AlimentosControlador
         //Si el parámetro nombre viene con información
         if (isset($_POST["nombre"])) {
             //Hacemos una array con los datos del formulario
-            $datosControlador = array("idAlimento" => $_POST["idAlimento"], "nombre" => $_POST["nombre"], "hidratos" => $_POST["hidratos"], "azucares" => $_POST["azucares"],
-                "grasasT" => $_POST["grasasT"], "grasasS" => $_POST["grasasS"], "proteinas" => $_POST["proteinas"],
-                "energetico" => $_POST["energetico"], "tipo" => $_POST["tipo"]);
+            $datosControlador = array(
+                "idAlimento" => $_POST["idAlimento"],
+                "nombre" => $_POST["nombre"],
+                "hidratos" => $_POST["hidratos"],
+                "azucares" => $_POST["azucares"],
+                "grasasT" => $_POST["grasasT"],
+                "grasasS" => $_POST["grasasS"],
+                "proteinas" => $_POST["proteinas"],
+                "energetico" => $_POST["energetico"],
+                "tipo" => $_POST["tipo"]
+            );
             //Elegimos una tabla
             $tablaBD = "alimentos";
 
@@ -330,7 +349,7 @@ class AlimentosControlador
 
             //Si la actualización fue correcta redirigimos a la página de listado
             if ($respuesta == "Actualización realizada correctamente") {
-                header("location:crudUsuarios.php?accion=listarAlimento");
+                header("location:index.php?accion=listarAlimento");
             } else {
                 echo "Hubo un error en el proceso del actualización";
             }

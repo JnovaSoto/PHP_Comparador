@@ -59,7 +59,8 @@ class AlimentosModelo
     static public function listarAlimentoPorTipoModelo1($tablaBD, $idTipo1)
     {
         //Nos conectamos a la base de datos y preparamos al sentencia de seleccionar los datos
-        $pdo = ConexionBD::conectarse()->prepare("SELECT * FROM $tablaBD where idTipo = $idTipo1");
+        $pdo = ConexionBD::conectarse()->prepare("SELECT * FROM $tablaBD where idTipo = :idTipo");
+        $pdo->bindParam(":idTipo", $idTipo1, PDO::PARAM_INT);
         //Si la sentencia sale bien, devolvemos todos los datos que se han encontrado
         try {
             $pdo->execute();
@@ -75,7 +76,8 @@ class AlimentosModelo
     static public function listarAlimentoPorTipoModelo2($tablaBD, $idTipo2)
     {
         //Nos conectamos a la base de datos y preparamos al sentencia de seleccionar los datos
-        $pdo = ConexionBD::conectarse()->prepare("SELECT * FROM $tablaBD where idTipo = $idTipo2");
+        $pdo = ConexionBD::conectarse()->prepare("SELECT * FROM $tablaBD where idTipo = :idTipo");
+        $pdo->bindParam(":idTipo", $idTipo2, PDO::PARAM_INT);
         //Si la sentencia sale bien, devolvemos todos los datos que se han encontrado
         try {
             $pdo->execute();
